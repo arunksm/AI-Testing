@@ -1,0 +1,19 @@
+# Project-wide ignore
+node_modules/
+dist/
+target/
+*.class
+.DS_Store
+.idea/
+.vscode/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Specific project ignores
+Chapter_04_JobAssistant_AI/node_modules/
+Project_01_LocalLLMTestGenerator_Antigravity/backend/node_modules/
+Project_02_RICE_POT_Selenium_FW/target/

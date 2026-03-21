@@ -1,38 +1,23 @@
 package tests;
 
-import java.time.Duration;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.LoginPage;
+import base.BaseTest;
 
-public class LoginTests {
-    private WebDriver driver;
+public class LoginTests extends BaseTest {
     private LoginPage loginPage;
 
-    @BeforeTest
-    public void setup() {
-        try {
-            ChromeOptions options = new ChromeOptions();
-            options.addArguments("--remote-allow-origins=*");
-            driver = new ChromeDriver(options);
-            driver.manage().window().maximize();
-            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
-            driver.get("https://login.salesforce.com/?locale=in");
-            loginPage = new LoginPage(driver);
-        } catch (Exception e) {
-            throw new RuntimeException("Driver Initialization or Navigation Failed", e);
-        }
+    @BeforeMethod
+    public void initPage() {
+        loginPage = new LoginPage(driver);
     }
 
     @Test(priority = 1)
     public void testInvalidLogin() {
         try {
-            loginPage.doLogin("invalid.user@salesforce.com", "WrongPassword");
+            loginPage.doLogin(props.getProperty("invalid_username"), props.getProperty("invalid_password"));
             Assert.assertTrue(loginPage.isErrorMessageDisplayed(), "Error message not displayed for invalid login.");
             String errorText = loginPage.getErrorMessage();
             Assert.assertTrue(errorText.contains("check your username and password"),
@@ -45,21 +30,14 @@ public class LoginTests {
     @Test(priority = 2)
     public void testValidLogin() {
         try {
-            loginPage.doLogin("valid.user@salesforce.com", "SecurePassword123!");
+            // Updated to use credentials from properties file
+            loginPage.doLogin(props.getProperty("valid_username"), props.getProperty("valid_password"));
+            
+            // If the user hasn't provided valid credentials yet, this assertion might still fail,
+            // but the framework is now structured correctly for when they do.
             Assert.assertFalse(loginPage.isErrorMessageDisplayed(), "Error message appeared for valid user.");
         } catch (RuntimeException e) {
             Assert.fail("Valid login test encountered an exception: " + e.getMessage());
-        }
-    }
-
-    @AfterTest
-    public void teardown() {
-        if (driver != null) {
-            try {
-                driver.quit();
-            } catch (Exception e) {
-                System.err.println("Driver teardown failed: " + e.getMessage());
-            }
         }
     }
 }
